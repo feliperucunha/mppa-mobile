@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'main.dart';
+import 'package:hello_world/interface1.dart';
+import 'interface1.dart';
 
 void main() => runApp(Interface2());
 
@@ -37,7 +38,7 @@ class _Interface2State extends State<Interface2> {
             ),
           ),
           shape: CircularNotchedRectangle(),
-          color: Colors.blue,
+          color: Color(0xFF1A237E),
         ),
       ),
     );
@@ -58,7 +59,7 @@ class _Interface2State extends State<Interface2> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MyApp()),
+                    MaterialPageRoute(builder: (context) => Interface1()),
                   );
                 },
                 child: new Text('Sim'),
@@ -81,7 +82,7 @@ class _Interface2State extends State<Interface2> {
 
   Container imageGEDOC() {
     return Container(
-      margin: EdgeInsets.only(left: 140.0, right: 140.0),
+      margin: EdgeInsets.only(left: 150.0, right: 150.0),
       child: Image.asset(
         'images/GEDOC.png',
         fit: BoxFit.cover,
