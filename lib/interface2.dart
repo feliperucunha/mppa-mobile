@@ -183,7 +183,6 @@ class SwitchWidgetClass extends State {
         textHolder = 'Notificação para todos';
       });
       print('Notificação para todos');
-      // Put your code here which you want to execute on Switch OFF event.
     }
   }
 
