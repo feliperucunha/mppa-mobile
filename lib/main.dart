@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hello_world/interface1.dart';
 import 'package:intro_slider/intro_slider.dart';
 import 'package:intro_slider/slide_object.dart';
-import 'package:intro_slider/scrollbar_behavior_enum.dart';
 
 void main() {
   runApp(MyApp());
@@ -78,26 +77,16 @@ class IntroScreenState extends State<IntroScreen> {
   @override
   Widget build(BuildContext context) {
     return new IntroSlider(
-      // List slides
       slides: this.slides,
-
-      // Done button
       renderDoneBtn: this.renderDoneBtn(),
       onDonePress: this.onDonePress,
       colorDoneBtn: Color(0x33000000),
       highlightColorDoneBtn: Color(0xff000000),
-
-      // Dot indicator
       colorDot: Color(0xFFFFFFFF),
       colorActiveDot: Color(0xFFFFFFFF),
       sizeDot: 13.0,
-
-      // Show or hide status bar
       shouldHideStatusBar: true,
       backgroundColorAllSlides: Colors.grey,
-
-      // Scrollbar
-      verticalScrollbarBehavior: scrollbarBehavior.SHOW_ALWAYS,
     );
   }
 }

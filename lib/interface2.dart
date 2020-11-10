@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:hello_world/interface1.dart';
 import 'interface1.dart';
+import 'package:custom_switch/custom_switch.dart';
 
 void main() => runApp(Interface2());
 
@@ -32,22 +34,19 @@ class _Interface2State extends State<Interface2> {
                 fit: BoxFit.cover,
               ),
             ),
-            PaginatedDataTable(
-              header: Text('Documentos em Processamento'),
-              rowsPerPage: 4,
-              columns: [
-                DataColumn(label: Text('Header A')),
-                DataColumn(label: Text('Header B')),
-                DataColumn(label: Text('Header C')),
-              ],
-              source: _DataSource(context),
+            Container(
+              margin: EdgeInsets.only(left: 5.0, right: 5.0),
+              padding: EdgeInsets.only(bottom: 85.0),
+              child: MyStatefulWidget(),
             ),
             Container(
-              padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
-            ),
-            Container(
-              padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
-              child: SwitchWidget(),
+              decoration: const BoxDecoration(
+                  border: Border(
+                top: BorderSide(width: 2.0, color: Colors.grey),
+              )),
+              padding: EdgeInsets.only(top: 20.0),
+              margin: EdgeInsets.only(left: 5.0, right: 5.0),
+              child: HomeScreen(),
             ),
           ],
         ),
@@ -98,114 +97,176 @@ class _Interface2State extends State<Interface2> {
   }
 }
 
-class _Row {
-  _Row(
-    this.valueA,
-    this.valueB,
-    this.valueC,
-  );
-
-  final String valueA;
-  final String valueB;
-  final String valueC;
-
-  bool selected = false;
-}
-
-class _DataSource extends DataTableSource {
-  _DataSource(this.context) {
-    _rows = <_Row>[
-      _Row('Cell A1', 'CellB1', 'CellC1'),
-      _Row('Cell A2', 'CellB2', 'CellC2'),
-      _Row('Cell A3', 'CellB3', 'CellC3'),
-      _Row('Cell A4', 'CellB4', 'CellC4'),
-    ];
-  }
-
-  final BuildContext context;
-  List<_Row> _rows;
-
-  int _selectedCount = 0;
+class MyStatefulWidget extends StatefulWidget {
+  MyStatefulWidget({Key key}) : super(key: key);
 
   @override
-  DataRow getRow(int index) {
-    assert(index >= 0);
-    if (index >= _rows.length) return null;
-    final row = _rows[index];
-    return DataRow.byIndex(
-      index: index,
-      selected: row.selected,
-      onSelectChanged: (value) {
-        if (row.selected != value) {
-          _selectedCount += value ? 1 : -1;
-          assert(_selectedCount >= 0);
-          row.selected = value;
-          notifyListeners();
-        }
-      },
-      cells: [
-        DataCell(Text(row.valueA)),
-        DataCell(Text(row.valueB)),
-        DataCell(Text(row.valueC)),
-      ],
+  _MyStatefulWidgetState createState() => _MyStatefulWidgetState();
+}
+
+/// This is the private State class that goes with MyStatefulWidget.
+class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+  List<Document> documents;
+  List<Document> selectedDocuments;
+
+  @override
+  void initState() {
+    selectedDocuments = [];
+    documents = Document.getDocuments();
+    super.initState();
+  }
+
+  onSelectedRow(bool selected, Document document) async {
+    setState(() {
+      if (selected) {
+        final snackBar = SnackBar(
+          margin:
+              EdgeInsets.only(left: 0.0, right: 0.0, top: 5.0, bottom: 104.0),
+          backgroundColor: Color(0xFF1A237E),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+          content: Text(
+            'Notificação ativada para ${document.protocolo}',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 20),
+          ),
+        );
+        Scaffold.of(context).showSnackBar(snackBar);
+        selectedDocuments.add(document);
+      } else {
+        final snackBar = SnackBar(
+          margin: EdgeInsets.only(left: 0.0, right: 0.0, bottom: 104.0),
+          backgroundColor: Color(0xFF1A237E),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+          content: Text(
+            'Notificação desativada para ${document.protocolo}',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 20),
+          ),
+        );
+        Scaffold.of(context).showSnackBar(snackBar);
+        selectedDocuments.remove(document);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: DataTable(
+        columns: [
+          DataColumn(
+            label: Text('Protocolo',
+                style: TextStyle(fontSize: 15), textAlign: TextAlign.center),
+            numeric: true,
+          ),
+          DataColumn(
+            label: Text('Assunto',
+                style: TextStyle(fontSize: 15), textAlign: TextAlign.center),
+            numeric: false,
+          ),
+          DataColumn(
+            label: Text('    Fase',
+                style: TextStyle(fontSize: 15), textAlign: TextAlign.center),
+            numeric: false,
+          ),
+        ],
+        rows: documents
+            .map(
+              (document) => DataRow(
+                  selected: selectedDocuments.contains(document),
+                  onSelectChanged: (b) {
+                    onSelectedRow(b, document);
+                  },
+                  cells: [
+                    DataCell(Container(
+                        width: 63,
+                        height: 5,
+                        margin: const EdgeInsets.only(
+                            right: 0, left: 0, top: 2, bottom: 2),
+                        padding: EdgeInsets.only(top: 2.0, bottom: 2.0),
+                        child: Text(document.protocolo,
+                            style: TextStyle(fontSize: 12),
+                            textAlign: TextAlign.center))),
+                    DataCell(Container(
+                        width: 60,
+                        margin: const EdgeInsets.only(
+                            right: 0, left: 0, top: 2, bottom: 2),
+                        padding: EdgeInsets.only(top: 2.0, bottom: 2.0),
+                        child: Text(document.assunto,
+                            style: TextStyle(fontSize: 12),
+                            textAlign: TextAlign.center))),
+                    DataCell(Container(
+                        width: 75,
+                        margin: const EdgeInsets.only(
+                            right: 0, left: 0, top: 2, bottom: 2),
+                        padding: EdgeInsets.only(top: 2.0, bottom: 2.0),
+                        //color: Colors.blue,
+                        child: Text(document.fase,
+                            style: TextStyle(fontSize: 12),
+                            textAlign: TextAlign.center))),
+                  ]),
+            )
+            .toList(),
+      ),
     );
   }
-
-  @override
-  int get rowCount => _rows.length;
-
-  @override
-  bool get isRowCountApproximate => false;
-
-  @override
-  int get selectedRowCount => _selectedCount;
 }
 
-class SwitchWidget extends StatefulWidget {
-  @override
-  SwitchWidgetClass createState() => new SwitchWidgetClass();
-}
+class Document {
+  String protocolo;
+  String assunto;
+  String fase;
 
-class SwitchWidgetClass extends State {
-  bool switchControl = false;
-  var textHolder = 'Notificação para todos';
+  Document({this.protocolo, this.assunto, this.fase});
 
-  void toggleSwitch(bool value) {
-    if (switchControl == false) {
-      setState(() {
-        switchControl = true;
-        textHolder = 'Notificação para todos';
-      });
-      print('Notificação para todos');
-    } else {
-      setState(() {
-        switchControl = false;
-        textHolder = 'Notificação para todos';
-      });
-      print('Notificação para todos');
-    }
+  static List<Document> getDocuments() {
+    return <Document>[
+      Document(protocolo: "2131/2020", assunto: "Remoto", fase: "Devolvido"),
+      Document(protocolo: "5874/2020", assunto: "Médico", fase: "Encaminhado"),
+      Document(protocolo: "6895/2020", assunto: "Ponto", fase: "Arquivado"),
+      Document(
+          protocolo: "4789/2020", assunto: "Frequência", fase: "Arquivado"),
+      Document(protocolo: "2548/2020", assunto: "Remoto", fase: "Encaminhado"),
+      Document(protocolo: "*********", assunto: "*******", fase: "**********"),
+      Document(protocolo: "*********", assunto: "*******", fase: "**********"),
+    ];
   }
+}
+
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool status = false;
 
   @override
   Widget build(BuildContext context) {
     return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         mainAxisSize: MainAxisSize.max,
-        children: [
+        children: <Widget>[
           Text(
-            '$textHolder',
-            style: TextStyle(fontSize: 24),
+            'Notificações para todos',
+            style: TextStyle(
+                color: Color(0xFF1A237E),
+                fontSize: 21.0,
+                fontWeight: FontWeight.bold),
           ),
-          Transform.scale(
-              scale: 1.5,
-              child: Switch(
-                onChanged: toggleSwitch,
-                value: switchControl,
-                activeColor: Colors.white,
-                activeTrackColor: Colors.green,
-                inactiveThumbColor: Colors.white,
-                inactiveTrackColor: Colors.grey,
-              )),
+          CustomSwitch(
+            activeColor: Colors.blue,
+            value: status,
+            onChanged: (value) {
+              print("VALUE : $value");
+              setState(() {
+                status = value;
+              });
+            },
+          ),
         ]);
   }
 }
